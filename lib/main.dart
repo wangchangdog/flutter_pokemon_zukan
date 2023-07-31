@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokemon_zukan/poke_list_item.dart';
 import 'package:flutter_pokemon_zukan/settings.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences pref = await SharedPreferences.getInstance();
+  final themeModeNotifier = ThemeModeNotifier();
+  runApp(ChangeNotifierProvider(
+    create: (context) => themeModeNotifier,
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +26,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: mode,
-      home: TopPage(),
+      home: ThemeModeManagerWidget(
+        child: TopPage(),
+      ),
     );
   }
 }

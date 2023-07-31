@@ -1,4 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ThemeModeNotifier extends ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  ThemeMode get themeMode => _themeMode;
+
+  Future<void> setThemeMode(ThemeMode themeMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeMode', themeMode.index);
+    _themeMode = themeMode;
+    notifyListeners();
+  }
+
+  Future<void> loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeModeIndex = prefs.getInt('themeMode') ?? 0;
+    _themeMode = ThemeMode.values[themeModeIndex];
+    notifyListeners();
+  }
+}
+
+class ThemeModeManager {
+  static Widget getApp(Widget app) {
+    return Consumer<ThemeModeNotifier>(
+      builder: (context, themeModeProvider, child) {
+        return MaterialApp(
+          themeMode: themeModeProvider.themeMode,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.blue,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primarySwatch: Colors.blue,
+          ),
+          home: app,
+        );
+      },
+    );
+  }
+
+  static ThemeMode getCurrentSystemThemeMode() {
+    final brightness = WidgetsBinding.instance!.window.platformBrightness;
+    if (brightness == Brightness.dark) {
+      return ThemeMode.dark;
+    } else {
+      return ThemeMode.light;
+    }
+  }
+
+  static void setThemeMode(BuildContext context, ThemeMode themeMode) {
+    final themeModeProvider =
+        Provider.of<ThemeModeNotifier>(context, listen: false);
+    themeModeProvider.setThemeMode(themeMode);
+  }
+}
+
+class ThemeModeManagerWidget extends StatelessWidget {
+  const ThemeModeManagerWidget({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeModeProvider =
+        Provider.of<ThemeModeNotifier>(context, listen: false);
+    themeModeProvider.loadThemeMode();
+    return ThemeModeManager.getApp(
+      child,
+    );
+  }
+}
 
 class Settings extends StatelessWidget {
   const Settings({Key? key}) : super(key: key);
@@ -18,7 +92,6 @@ class Settings extends StatelessWidget {
   }
 }
 
-
 class ThemeModeSelectionPage extends StatelessWidget {
   const ThemeModeSelectionPage({Key? key}) : super(key: key);
   @override
@@ -28,8 +101,8 @@ class ThemeModeSelectionPage extends StatelessWidget {
         children: [
           ListTile(
             leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
           ListTile(
@@ -37,7 +110,7 @@ class ThemeModeSelectionPage extends StatelessWidget {
             title: const Text('Light'),
             onTap: () => {
               Navigator.of(context).pop(),
-              ThemeModeManager.of(context).setThemeMode(ThemeMode.light) ,
+              ThemeModeManager.setThemeMode(context, ThemeMode.light),
             },
           ),
           ListTile(
@@ -45,7 +118,7 @@ class ThemeModeSelectionPage extends StatelessWidget {
             title: const Text('Dark'),
             onTap: () => {
               Navigator.of(context).pop(),
-              ThemeModeManager.of(context).setThemeMode(ThemeMode.dark),
+              ThemeModeManager.setThemeMode(context, ThemeMode.dark),
             },
           ),
           ListTile(
@@ -53,43 +126,11 @@ class ThemeModeSelectionPage extends StatelessWidget {
             title: const Text('System'),
             onTap: () => {
               Navigator.of(context).pop(),
-              ThemeModeManager.of(context).setThemeMode(ThemeMode.system),
+              ThemeModeManager.setThemeMode(context, ThemeMode.system)
             },
           ),
         ],
       ),
     );
-  }
-}
-
-class ThemeModeManager extends StatefulWidget {
-  const ThemeModeManager({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-
-  final Widget child;
-
-  @override
-  _ThemeModeManagerState createState() => _ThemeModeManagerState(); 
-  static _ThemeModeManagerState of(BuildContext context) {
-    final _ThemeModeManagerState? result = context.findAncestorStateOfType<_ThemeModeManagerState>();
-    assert(result != null, 'No ThemeModeManager found in context');
-    return result!;
-  }
-}
-
-class _ThemeModeManagerState extends State<ThemeModeManager> {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  void setThemeMode(ThemeMode themeMode) {
-    setState(() {
-      _themeMode = themeMode;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
   }
 }
