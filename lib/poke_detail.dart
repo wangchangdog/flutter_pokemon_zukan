@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_pokemon_zukan/constant/pokemon_types.dart';
+import 'package:flutter_pokemon_zukan/model/pokemon.dart';
 
 class PokeDetail extends StatelessWidget {
-  PokeDetail({Key? key, required this.title});
-  final String title;
-  
+  const PokeDetail({Key? key, required this.poke}) : super(key: key);
+  final Pokemon? poke;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,31 +19,39 @@ class PokeDetail extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(32),
                     child: Image.network(
-                      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/138.png",
+                      poke!.imageUrl,
                       width: 200,
                       height: 200,
                     ),
                   ),
                   Container(
                     padding: EdgeInsets.all(8),
-                    child: const Text(
-                      "オムナイト",
-                      style: TextStyle(
+                    child: Text(
+                      poke!.name,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   )
                 ]),
-                Chip(
-                  backgroundColor: Colors.cyan,
-                  label: Text(
-                    "みず",
-                    style: TextStyle(
-                        color: Colors.cyan.computeLuminance() > 0.5
-                            ? Colors.black
-                            : Colors.white
-                        ),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ...poke!.types.map((type) {
+                        return Chip(
+                          backgroundColor: pokeTypeColors[type],
+                          label: Text(
+                            type,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ),
                 ),
               ])),
