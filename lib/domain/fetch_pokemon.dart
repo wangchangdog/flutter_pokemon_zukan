@@ -17,3 +17,4 @@ Future<Pokemon> fetchPokemon(int id) async {
   }
   throw Exception('Failed to Load Pokemon (any other error)');
 }
+

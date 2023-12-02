@@ -14,7 +14,8 @@ class PokeListItem extends StatelessWidget {
           leading: Container(
               width: 80,
               decoration: BoxDecoration(
-                color: (pokeTypeColors[poke!.types.first] ?? Colors.grey[100])?.withOpacity(.3),
+                color: (pokeTypeColors[poke!.types.first] ?? Colors.grey[100])
+                    ?.withOpacity(.3),
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
                     fit: BoxFit.fitWidth,
@@ -25,14 +26,25 @@ class PokeListItem extends StatelessWidget {
           title: Text(
             poke!.name,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 18,
             ),
           ),
-          subtitle: Text(
-            poke!.types.join(" "),
-            style: const TextStyle(
-              fontSize: 12,
-            ),
+          subtitle: Wrap(
+            spacing: 8,
+            children: <Widget>[
+              ...poke!.types.map((type) {
+                return Chip(
+                  backgroundColor: pokeTypeColors[type],
+                  label: Text(
+                    type,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
           ),
           trailing: const Icon(Icons.navigate_next),
           onTap: () {

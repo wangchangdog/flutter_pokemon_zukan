@@ -44,9 +44,13 @@ class PokeDetail extends StatelessWidget {
                           backgroundColor: pokeTypeColors[type],
                           label: Text(
                             type,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white,
+                              color: Color(pokeTypeColors[type]!.value)
+                                          .computeLuminance() >
+                                      0.5
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
                           ),
                         );
